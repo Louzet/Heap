@@ -11,7 +11,17 @@ class HeapOperation
     public function __construct()
     {}
 
-    public static function isHeap(Heap|array $data): bool
+    public function makeHeap(array $first, array $second, callable $compare = null, string $sort = 'max_heap')
+    {}
+
+    /**
+     * Check if a given data is a Heap, by testing if it's a maxHeap or minHeap
+     * 
+     * @param Heap|array $data
+     * 
+     * @return bool
+     */
+    public static function isHeap($data): bool
     {
         if (is_array($data) && empty($data)) {
             throw new InvalideHeapException(sprintf("argument can not be empty."));
@@ -24,21 +34,26 @@ class HeapOperation
                 }
             }
 
-            return self::isMaxHeap($data);
+            return self::isMaxHeap($data)|| self::isMinHeap($data);
         }
 
-        if ($data instanceof Heap) {
-            return true;
+        if (is_object($data) && $data instanceof Heap) {
+            return self::isMaxHeap($data) || self::isMinHeap($data);
         }
 
         return false;
     }
 
-    public static function isMaxHeap(Heap|array $heap): bool
+    public static function isMaxHeap($heap): bool
     {
-        $heapSize = \count($heap);
-        
         if (is_array($heap) && !empty($heap)) {
+
+            $heapSize = \count($heap);
+
+            if ($heapSize <= 2) {
+                return max($heap) === $heap[0];
+            }
+            
             if ($heap[0] !== max($heap)) {
                 return false;
             }
@@ -47,23 +62,49 @@ class HeapOperation
                 return ($heap[$i] >= $heap[($i*2)+1]) && ($heap[$i] >= $heap[($i*2)+2]);
             }
             
-            // if ($heapSize % 2 === 0) {
-            //     $midHeapSize = $heapSize / 2 - 1; // cause array start to 0
-            // } else {
-            //     $midHeapSize = intval($heapSize / 2) + 1;
-            // } 
             return false;
+        }
+
+        if (is_object($heap)) {
+            if (!$heap instanceof Heap) {
+                return false;
+            }
+
+            return self::isMaxHeap($heap->toArray());
         }
 
         return false;
     }
 
-    private static function nodeChildrens(array $heap, int $position = 1): array
+    public static function isMinHeap($heap): bool
     {
-        if (0 === $position) {
-            return [];
+        if (is_array($heap) && !empty($heap)) {
+
+            $heapSize = \count($heap);
+
+            if ($heapSize <= 2) {
+                return min($heap) === $heap[0];
+            }
+
+            if ($heap[0] !== min($heap)) {
+                return false;
+            }
+            
+            for ($i = 0; $i <= $heapSize; $i++) {
+                return ($heap[$i] <= $heap[($i*2)+1]) && ($heap[$i] <= $heap[($i*2)+2]);
+            }
+            
+            return false;
         }
 
-        return [$heap[$position*2], $heap[$position*2+1]];
+        if (is_object($heap)) {
+            if (!$heap instanceof Heap) {
+                return false;
+            }
+
+            return self::isMinHeap($heap->toArray());
+        }
+
+        return false;
     }
 }
