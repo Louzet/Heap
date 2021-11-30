@@ -6,9 +6,28 @@ namespace Louzet\Heap;
 
 class Heap
 {
-    public function __construct(array $data = [])
-    {}
+    private array $data;
 
-    public function makeHeap(array $first, array $second, callable $compare = null, string $sort = HeapSort::MAXHEAP)
-    {}
+    private int $size = 0;
+
+    public function __construct(array $data = [])
+    {
+        $this->data = $data;
+        $this->size = \count($this->data);
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->getSize() === 0;
+    }
+
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
+    public function toArray(): array
+    {
+        return $this->data;
+    }
 }
